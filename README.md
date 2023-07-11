@@ -1,7 +1,10 @@
 # Lab
 **I. EMPIRE LUPIN ONE**
+
 Nguồn hướng dẫn:[Đây](https://www.hackingarticles.in/empire-lupinone-vulnhub-walkthrough/)
+
 1. Tìm kiếm mục tiêu, quét cổng
+
    Đầu tiên dùng netdiscover tool để khám phá mạng xung quanh, tìm địa chỉ IP mục tiêu:
    `netdiscover`
    Sau khi đã có IP máy mục tiêu, quét các cổng bằng Nmap tool:

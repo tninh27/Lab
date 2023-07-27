@@ -370,7 +370,7 @@ Nguồn hướng dẫn: [Đây](https://www.hackingarticles.in/darkhole-2-vulnhu
 
    ![image](https://github.com/tninh27/Lab/assets/105789492/c041f2c3-f31c-4694-b7d4-44bac5836f1a)
 
-## IV. Darkhole2
+## IV. Darkhole1
 
 Nguồn hướng dẫn:[Đây](https://resources.infosecinstitute.com/topic/darkhole-1-vulnhub-ctf-walkthrough/)
 
